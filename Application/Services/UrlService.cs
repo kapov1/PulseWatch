@@ -2,31 +2,45 @@ public class UrlService(UrlStorage urlStorage)
 {
     private bool Contains(UrlModel url) => urlStorage.Urls.Any(urlModel => urlModel.Url == url.Url);
 
-    public Result AddUrl(UrlModel url)
+    public Result<UrlModel> AddUrl(string url, string? name = null)
     {
-        if (Contains(url))
+        UrlModel urlModel = new(url, name);
+
+        if (Contains(urlModel))
         {
-            return Result.Failure("This URL already exist");
+            return Result<UrlModel>.Failure("This URL already exist");
         }
 
-        urlStorage.AddUrl(url);
+        urlStorage.AddUrl(urlModel);
 
-        return Result.Success();
+        return Result<UrlModel>.Success(urlModel);
     }
 
-    public Result RemoveUrl(UrlModel url)
+    public Result RemoveUrl(string url)
     {
-        if (!Contains(url)) return Result.Failure("This URL doesn't exist");
+        var result = FindUrlModel(url);
 
-        urlStorage.RemoveUrl(url);
+        if (result.IsFailure) return Result.Failure(result.ErrorMessage);
+
+        urlStorage.RemoveUrl(result.Value!);
 
         return Result.Success();
     }
 
     public IEnumerable<UrlModel> FindByName(string name)
     {
-        IEnumerable<UrlModel> urls = urlStorage.Urls.Where(url => url.Name == name);
+        IEnumerable<UrlModel> urls = urlStorage.Urls
+            .Where(url => url.Name == name);
 
         return urls;
+    }
+
+    public Result<UrlModel> FindUrlModel(string url)
+    {
+        var urlModel = urlStorage.Urls.FirstOrDefault(_url => _url.Url == url);
+
+        return urlModel is null ? 
+            Result<UrlModel>.Failure("This URL doesn't exist") : 
+            Result<UrlModel>.Success(urlModel);
     }
 }
