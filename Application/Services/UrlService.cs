@@ -1,6 +1,6 @@
 public class UrlService(UrlStorage urlStorage)
 {
-    private int _idCounter = 1;
+    private static int _idCounter = 1;
 
     private bool Contains(UrlModel url) => urlStorage.Urls.Any(urlModel => urlModel.Id == url.Id);
 
@@ -19,7 +19,7 @@ public class UrlService(UrlStorage urlStorage)
 
         if (Contains(urlModel))
         {
-            return Result<UrlModel>.Failure("This URL already exist");
+            return Result<UrlModel>.Failure("This URL with this ID already exist");
         }
 
         urlStorage.AddUrl(urlModel);
