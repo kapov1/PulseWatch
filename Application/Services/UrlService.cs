@@ -1,6 +1,6 @@
 public class UrlService(UrlStorage urlStorage)
 {
-    private bool Contains(UrlModel url) => urlStorage.Urls.Any(url_ => url_.Url == url.Url);
+    private bool Contains(UrlModel url) => urlStorage.Urls.Any(urlModel => urlModel.Url == url.Url);
 
     public Result AddUrl(UrlModel url)
     {
