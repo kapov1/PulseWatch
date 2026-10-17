@@ -18,7 +18,7 @@ public class StatesController(MonitoringService monitoringService, UrlService ur
     }
 
     [HttpPost]
-    public async Task<ActionResult<CheckResult>> GetState([FromBody] string url)
+    public async Task<ActionResult<CheckResult>> GetState([FromBody][UrlAddress] string url)
     {
         var checkResult = await monitoringService.SendRequestAsync(url);
         return checkResult;
