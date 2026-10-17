@@ -27,9 +27,9 @@ public class UrlsController(UrlService urlService) : ControllerBase
     }
 
     [HttpPut]
-    public ActionResult<UrlResponse> Update([FromBody] CreateUrlRequest request)
+    public ActionResult<UrlResponse> Update([FromBody] string url, [FromBody] CreateUrlRequest request)
     {
-        var result = urlService.FindUrlModel(request.Url);
+        var result = urlService.FindUrlModel(url);
 
         if (result.IsFailure) return NotFound(result.ErrorMessage);
 
