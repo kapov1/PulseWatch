@@ -4,6 +4,17 @@ using Microsoft.AspNetCore.Mvc;
 [Route("urls")]
 public class UrlsController(UrlService urlService) : ControllerBase
 {
+    [HttpGet("{id:int}")]
+    public ActionResult<UrlResponse> GetById(int id)
+    {
+        var result = urlService.FindById(id);
+
+        if (result.IsFailure) return NotFound(result.ErrorMessage);
+
+        UrlResponse response = new(result.Value!);
+        return response;
+    }
+
     [HttpGet("{name}")]
     public ActionResult<IEnumerable<UrlResponse>> GetByName(string name)
     {
@@ -26,10 +37,10 @@ public class UrlsController(UrlService urlService) : ControllerBase
         return CreatedAtAction(nameof(GetByName), new { response.Name }, response);
     }
 
-    [HttpPut]
-    public ActionResult<UrlResponse> Update([FromBody] string url, [FromBody] CreateUrlRequest request)
+    [HttpPut("{id:int}")]
+    public ActionResult<UrlResponse> Update(int id, [FromBody] CreateUrlRequest request)
     {
-        var result = urlService.FindUrlModel(url);
+        var result = urlService.Update(request.Url, request.Name, id);
 
         if (result.IsFailure) return NotFound(result.ErrorMessage);
 
@@ -39,13 +50,11 @@ public class UrlsController(UrlService urlService) : ControllerBase
         return Ok(new UrlResponse(urlModel));
     }
 
-    [HttpDelete]
-    public IActionResult Delete([FromBody] string url)
+    [HttpDelete("{id:int}")]
+    public IActionResult Delete(int id)
     {
-        var result = urlService.RemoveUrl(url);
+        var result = urlService.RemoveUrl(id);
 
         return result.IsSuccess ? NoContent() : NotFound(result.ErrorMessage);
     }
-}
-
-// git commit -m "feat: add UrlResponse, CreateUrlRequest, statesUrlController(empty), Urlscontroller(GET, POST, PUT, 
+} 

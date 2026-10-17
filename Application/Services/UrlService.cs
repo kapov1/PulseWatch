@@ -1,10 +1,21 @@
 public class UrlService(UrlStorage urlStorage)
 {
-    private bool Contains(UrlModel url) => urlStorage.Urls.Any(urlModel => urlModel.Url == url.Url);
+    private int _idCounter = 1;
+
+    private bool Contains(UrlModel url) => urlStorage.Urls.Any(urlModel => urlModel.Id == url.Id);
+
+    public Result<UrlModel> FindById(int id)
+    {
+        var urlModel = urlStorage.Urls.FirstOrDefault(_url => _url.Id == id);
+
+        return urlModel is null ?
+            Result<UrlModel>.Failure("The URL with this ID doesn't exist") :
+            Result<UrlModel>.Success(urlModel);
+    }
 
     public Result<UrlModel> AddUrl(string url, string? name = null)
     {
-        UrlModel urlModel = new(url, name);
+        UrlModel urlModel = new(_idCounter++, url, name);
 
         if (Contains(urlModel))
         {
@@ -16,9 +27,9 @@ public class UrlService(UrlStorage urlStorage)
         return Result<UrlModel>.Success(urlModel);
     }
 
-    public Result RemoveUrl(string url)
+    public Result RemoveUrl(int id)
     {
-        var result = FindUrlModel(url);
+        var result = FindById(id);
 
         if (result.IsFailure) return Result.Failure(result.ErrorMessage);
 
@@ -35,12 +46,14 @@ public class UrlService(UrlStorage urlStorage)
         return urls;
     }
 
-    public Result<UrlModel> FindUrlModel(string url)
+    public Result<UrlModel> Update(string url, string? name, int id)
     {
-        var urlModel = urlStorage.Urls.FirstOrDefault(_url => _url.Url == url);
+        var result = FindById(id);
+        if (result.IsFailure) return Result<UrlModel>.Failure(result.ErrorMessage);
 
-        return urlModel is null ? 
-            Result<UrlModel>.Failure("This URL doesn't exist") : 
-            Result<UrlModel>.Success(urlModel);
+        var urlModel = result.Value!;
+        urlModel.Update(url, name);
+
+        return Result<UrlModel>.Success(urlModel);
     }
 }
