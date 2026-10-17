@@ -6,7 +6,7 @@ public sealed class UrlAddressAttribute : ValidationAttribute
 
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        if (value is null or string) return ValidationResult.Success;
+        if (value is null or not string) return ValidationResult.Success;
 
         string url = (string)value;
 
