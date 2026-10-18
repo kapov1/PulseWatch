@@ -38,12 +38,14 @@ public class UrlService(UrlStorage urlStorage)
         return Result.Success();
     }
 
-    public IEnumerable<UrlModel> FindByName(string name)
+    public Result<IEnumerable<UrlModel>> FindByName(string name)
     {
         IEnumerable<UrlModel> urls = urlStorage.Urls
             .Where(url => url.Name == name);
 
-        return urls;
+        return urls.Any() ?
+            Result<IEnumerable<UrlModel>>.Success(urls) :
+            Result<IEnumerable<UrlModel>>.Failure("Url model with this name not found");
     }
 
     public Result<UrlModel> Update(string url, string? name, int id)

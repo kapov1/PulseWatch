@@ -25,15 +25,12 @@ public class StatesController(MonitoringService monitoringService, UrlService ur
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<CheckResult>>> GetAllStates()
+    public async Task<IResult> GetAllStates()
     {
-        List<Task<CheckResult>> results = new();
+        var checkResults = await monitoringService.SendRequestsAsync(urlStorage);
 
-        foreach(var urlModel in urlStorage.Urls)
-        {
-            results.Add(monitoringService.SendRequestAsync(urlModel.Url));
-        }
+        if (!checkResults.Any()) return TypedResults.NotFound("You haven't added any URLs");
 
-        return Ok(await Task.WhenAll(results));
+        return TypedResults.Ok(checkResults);
     }
 }

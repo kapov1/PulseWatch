@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net;
 
 public class MonitoringService(HttpClient httpClient)
 {
@@ -10,17 +11,41 @@ public class MonitoringService(HttpClient httpClient)
         cts.CancelAfter(_timeOut);
         var token = cts.Token;
 
-        Stopwatch stopwatch = new();
+        Stopwatch stopwatch = new();   
 
-        stopwatch.Start();
+        try
+        {
+            stopwatch.Start();
 
-        using var response = await httpClient.GetAsync(url, token);
+            using var response = await httpClient.GetAsync(url, token);
+            
+            stopwatch.Stop();
 
-        stopwatch.Stop();
+            return new(url, stopwatch.Elapsed.TotalSeconds, response.StatusCode);
+        }
+        catch (OperationCanceledException)
+        {
+            return new(url, stopwatch.Elapsed.TotalSeconds, HttpStatusCode.GatewayTimeout, "Request time out");
+        }
+        catch (HttpRequestException)
+        {
+            return new(url, stopwatch.Elapsed.TotalSeconds, HttpStatusCode.BadGateway, "Network error");
+        }
+    }
 
-        string message = "";
-        if (cts.IsCancellationRequested) message = "Request timed out";
+    public async Task<IEnumerable<CheckResult>> SendRequestsAsync(UrlStorage urlStorage)
+    {
+        if (!urlStorage.Urls.Any()) return [];
 
-        return new(url, stopwatch.Elapsed.TotalSeconds, response.StatusCode, message);
-    } 
+        List<Task<CheckResult>> results = new();
+
+        foreach (var urlModel in urlStorage.Urls)
+        {
+            results.Add(SendRequestAsync(urlModel.Url));
+        }
+
+        var checkResults = await Task.WhenAll(results);
+
+        return checkResults;
+    }
 }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -5,28 +6,30 @@ using Microsoft.AspNetCore.Mvc;
 public class UrlsController(UrlService urlService) : ControllerBase
 {
     [HttpGet("{id:int}")]
-    public ActionResult<UrlResponse> GetById(int id)
+    public Results<Ok<UrlResponse>, NotFound<string>> GetById(int id)
     {
         var result = urlService.FindById(id);
 
-        if (result.IsFailure) return NotFound(result.ErrorMessage);
+        if (result.IsFailure) return TypedResults.NotFound(result.ErrorMessage);
 
         UrlResponse response = new(result.Value!);
-        return response;
+        return TypedResults.Ok(response);
     }
 
     [HttpGet("{name}")]
-    public ActionResult<IEnumerable<UrlResponse>> GetByName(string name)
+    public Results<Ok<IEnumerable<UrlResponse>>, NotFound<string>> GetByName(string name)
     {
-        var urlModels = urlService.FindByName(name);
-        if (!urlModels.Any()) return NotFound();
+        var result = urlService.FindByName(name);
+        if (result.IsFailure) return TypedResults.NotFound(result.ErrorMessage);
 
-        IEnumerable<UrlResponse> urlResponses = urlModels.Select(url => new UrlResponse(url)); 
-        return Ok(urlResponses);
+        var urlModels = result.Value!;
+
+        IEnumerable<UrlResponse> urlResponses = urlModels.Select(url => new UrlResponse(url));
+        return TypedResults.Ok(urlResponses);
     }
 
     [HttpPost]
-    public ActionResult<UrlResponse> Create([FromBody] CreateUrlRequest request)
+    public IActionResult Create([FromBody] CreateUrlRequest request)
     {
         var result = urlService.AddUrl(request.Url, request.Name);
 
@@ -38,23 +41,24 @@ public class UrlsController(UrlService urlService) : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public ActionResult<UrlResponse> Update(int id, [FromBody] CreateUrlRequest request)
+    public Results<Ok<UrlResponse>, NotFound<string>> Update(int id, [FromBody] CreateUrlRequest request)
     {
         var result = urlService.Update(request.Url, request.Name, id);
 
-        if (result.IsFailure) return NotFound(result.ErrorMessage);
+        if (result.IsFailure) return TypedResults.NotFound(result.ErrorMessage);
 
         var urlModel = result.Value!;
-        urlModel.Update(request.Url, request.Name);
 
-        return Ok(new UrlResponse(urlModel));
+        return TypedResults.Ok(new UrlResponse(urlModel));
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id)
+    public Results<NoContent, NotFound<string>> Delete(int id)
     {
         var result = urlService.RemoveUrl(id);
 
-        return result.IsSuccess ? NoContent() : NotFound(result.ErrorMessage);
+        return result.IsSuccess ? 
+            TypedResults.NoContent() : 
+            TypedResults.NotFound(result.ErrorMessage);
     }
-} 
+}

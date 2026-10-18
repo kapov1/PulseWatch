@@ -11,15 +11,14 @@ public sealed record Result<T> where T : notnull
         Value = value;
         IsSuccess = true;
     }
-
-    private Result(string errorMessage = "")
+    private Result(string errorMessage)
     {
         ErrorMessage = errorMessage;
         IsSuccess = false;
     }
 
     public static Result<T> Success(T value) => new(value);
-    public static Result<T> Failure(string errorMessage = "") => new(errorMessage);
+    public static Result<T> Failure(string errorMessage) => new(errorMessage);
 }
 
 public sealed record Result
@@ -40,5 +39,5 @@ public sealed record Result
     }
 
     public static Result Success() => new();
-    public static Result Failure(string errorMessage = "") => new(errorMessage);
+    public static Result Failure(string errorMessage) => new(errorMessage);
 }
