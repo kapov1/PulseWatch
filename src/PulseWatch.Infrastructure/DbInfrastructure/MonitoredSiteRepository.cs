@@ -3,7 +3,7 @@ using PulseWatch.Application;
 using PulseWatch.Common.Models;
 using PulseWatch.Domain;
 
-namespace PulseWatch.Infrastructure.Repositories;
+namespace PulseWatch.Infrastructure.DbInfrastructure;
 
 public class MonitoredSiteRepository(AppDbContext dbContext) : IMonitoredSiteRepository
 {
@@ -39,7 +39,7 @@ public class MonitoredSiteRepository(AppDbContext dbContext) : IMonitoredSiteRep
 
     public async Task<IEnumerable<MonitoredSite>> GetAllAsync(CancellationToken cancellationToken)
     {
-        return await monitoredSites.ToListAsync(cancellationToken);   
+        return await monitoredSites.ToListAsync(cancellationToken);
     }
 
     public async Task<Result<MonitoredSite>> GetByIdAsync(int id, CancellationToken cancellationToken)

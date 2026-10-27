@@ -1,13 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using PulseWatch.Domain;
 
+namespace PulseWatch.Infrastructure.DbInfrastructure;
+
 public sealed class AppDbContext : DbContext
 {
     public DbSet<MonitoredSite> MonitoredSites => Set<MonitoredSite>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
     : base(options)
-    {      
+    {
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
