@@ -6,6 +6,7 @@ namespace PulseWatch.Application;
 public interface IMonitoredSiteRepository
 {
     Task<IEnumerable<MonitoredSite>> GetAllAsync(CancellationToken cancellationToken);
+    
     Task<Result<MonitoredSite>> GetByIdAsync(int id, CancellationToken cancellationToken);
 
     Task<Result<MonitoredSite>> CreateAsync(MonitoredSite monitoredSite, CancellationToken cancellationToken);

@@ -4,5 +4,5 @@ namespace PulseWatch.Application.Interfaces;
 
 public interface ISiteAvailabilityChecker
 {
-    Task<Result> CheckAsync(string url, CancellationToken cancellationToken);
+    Task<Result> CheckAvailabilityAsync(string url, CancellationToken cancellationToken);
 }
