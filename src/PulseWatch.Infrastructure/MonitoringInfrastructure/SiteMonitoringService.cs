@@ -68,5 +68,4 @@ public class SiteMonitoringService(HttpClient httpClient, MonitoredSiteRepositor
 
         return SiteCheckResult.FromHttpResponse(response, stopwatch.Elapsed.Seconds);
     }
-
 }
