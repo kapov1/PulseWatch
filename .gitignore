@@ -9,3 +9,6 @@ src/PulseWatch.Domain/obj
 
 src/PulseWatch.Infrastructure/bin
 src/PulseWatch.Infrastructure/obj
+
+src/PulseWatch.Common/bin
+src/PulseWatch.Common/obj
