@@ -2,10 +2,10 @@ namespace PulseWatch.Application.Interfaces;
 
 public interface ISiteCheckResult
 {
+    bool IsReachable { get; }
     bool IsAvailable { get; }
     int? StatusCode { get; }
-    string? StatusCodeName { get; } 
-    int ResponseTimeMs { get; }
+    double ResponseTimeMs { get; }
     DateTimeOffset CheckedAt { get; }
     string? FailureReason { get; }
 }

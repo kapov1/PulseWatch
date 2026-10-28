@@ -1,45 +1,48 @@
-using Npgsql.Replication;
 using PulseWatch.Application.Interfaces;
 
 namespace PulseWatch.Infrastructure.MonitoringInfrastructure;
 
 public class SiteCheckResult : ISiteCheckResult
 {
+    public bool IsReachable { get; }
+
     public bool IsAvailable { get; }
 
     public int? StatusCode { get; }
 
-    public string? StatusCodeName { get; }
-
-    public int ResponseTimeMs { get; }
+    public double ResponseTimeMs { get; }
 
     public DateTimeOffset CheckedAt { get; }
 
     public string? FailureReason { get; }
 
-    private SiteCheckResult(HttpResponseMessage httpResponse, int responseTimeMs)
+    private SiteCheckResult(HttpResponseMessage httpResponse, double responseTimeMs)
     {
+        IsReachable = true;
         IsAvailable = httpResponse.IsSuccessStatusCode;
         StatusCode = (int)httpResponse.StatusCode;
-        StatusCodeName = httpResponse.StatusCode.ToString();
         ResponseTimeMs = responseTimeMs;
         CheckedAt = DateTimeOffset.UtcNow;
         FailureReason = IsAvailable ? null : httpResponse.ReasonPhrase;
     }
 
-    private SiteCheckResult(int responseTimeMs)
+    private SiteCheckResult(double responseTimeMs, string failureReason)
     {
+        IsReachable = false;
         IsAvailable = false;
         StatusCode = null;
-        StatusCodeName = null;
         ResponseTimeMs = responseTimeMs;
         CheckedAt = DateTimeOffset.UtcNow;
-        FailureReason = "HostNotFound";
+        FailureReason = failureReason;
     }
 
-    public static SiteCheckResult FromHttpResponse(HttpResponseMessage httpResponse, int responseTimeMs) =>
+    public static SiteCheckResult FromHttpResponse(HttpResponseMessage httpResponse, double responseTimeMs) =>
         new(httpResponse, responseTimeMs);
     
-    public static SiteCheckResult FromHostNotFound(int responseTimeMs) =>
-        new(responseTimeMs);
+    public static SiteCheckResult FromHostNotFound(double responseTimeMs) =>
+        new(responseTimeMs, "HostNotFound");
+
+    public static SiteCheckResult FromHttpRequestFailure(double responseTimeMs) =>
+        new(responseTimeMs, "HttpRequestFailed");
+
 }    
