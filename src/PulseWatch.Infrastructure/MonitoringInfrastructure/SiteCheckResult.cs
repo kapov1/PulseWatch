@@ -4,6 +4,8 @@ namespace PulseWatch.Infrastructure.MonitoringInfrastructure;
 
 public class SiteCheckResult : ISiteCheckResult
 {
+    public string Url { get; }
+
     public bool IsReachable { get; }
 
     public bool IsAvailable { get; }
@@ -16,8 +18,9 @@ public class SiteCheckResult : ISiteCheckResult
 
     public string? FailureReason { get; }
 
-    private SiteCheckResult(HttpResponseMessage httpResponse, double responseTimeMs)
+    private SiteCheckResult(string url, HttpResponseMessage httpResponse, double responseTimeMs)
     {
+        Url = url;
         IsReachable = true;
         IsAvailable = httpResponse.IsSuccessStatusCode;
         StatusCode = (int)httpResponse.StatusCode;
@@ -26,8 +29,9 @@ public class SiteCheckResult : ISiteCheckResult
         FailureReason = IsAvailable ? null : httpResponse.ReasonPhrase;
     }
 
-    private SiteCheckResult(double responseTimeMs, string failureReason)
+    private SiteCheckResult(string url, double responseTimeMs, string failureReason)
     {
+        Url = url;
         IsReachable = false;
         IsAvailable = false;
         StatusCode = null;
@@ -36,13 +40,15 @@ public class SiteCheckResult : ISiteCheckResult
         FailureReason = failureReason;
     }
 
-    public static SiteCheckResult FromHttpResponse(HttpResponseMessage httpResponse, double responseTimeMs) =>
-        new(httpResponse, responseTimeMs);
+    public static SiteCheckResult FromHttpResponse(string url, HttpResponseMessage httpResponse, double responseTimeMs) =>
+        new(url, httpResponse, responseTimeMs);
     
-    public static SiteCheckResult FromHostNotFound(double responseTimeMs) =>
-        new(responseTimeMs, "HostNotFound");
+    public static SiteCheckResult FromHostNotFound(string url, double responseTimeMs) =>
+        new(url, responseTimeMs, "HostNotFound");
 
-    public static SiteCheckResult FromHttpRequestFailure(double responseTimeMs) =>
-        new(responseTimeMs, "HttpRequestFailed");
+    public static SiteCheckResult FromHttpRequestFailure(string url, double responseTimeMs) =>
+        new(url, responseTimeMs, "HttpRequestFailed");
 
+    public static SiteCheckResult FromTimeOut(string url, double responseTimeMs) => 
+        new(url, responseTimeMs, "TimedOut");
 }    
