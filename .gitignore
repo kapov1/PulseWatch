@@ -1,0 +1,14 @@
+src/PulseWatch.Api/bin
+src/PulseWatch.Api/obj
+
+src/PulseWatch.Application/bin
+src/PulseWatch.Application/obj
+
+src/PulseWatch.Domain/bin
+src/PulseWatch.Domain/obj
+
+src/PulseWatch.Infrastructure/bin
+src/PulseWatch.Infrastructure/obj
+
+src/PulseWatch.Common/bin
+src/PulseWatch.Common/obj
