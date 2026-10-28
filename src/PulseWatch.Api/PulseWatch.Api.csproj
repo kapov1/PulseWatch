@@ -7,8 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../PulseWatch.Common/PulseWatch.Common.csproj" />
     <ProjectReference Include="../PulseWatch.Application/PulseWatch.Application.csproj" />
     <ProjectReference Include="../PulseWatch.Infrastructure/PulseWatch.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.1" />
   </ItemGroup>
 
 </Project>

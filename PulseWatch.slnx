@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/PulseWatch.Api/PulseWatch.Api.csproj" />
     <Project Path="src/PulseWatch.Application/PulseWatch.Application.csproj" />
+    <Project Path="src/PulseWatch.Common/PulseWatch.Common.csproj" />
     <Project Path="src/PulseWatch.Domain/PulseWatch.Domain.csproj" />
     <Project Path="src/PulseWatch.Infrastructure/PulseWatch.Infrastructure.csproj" />
   </Folder>
