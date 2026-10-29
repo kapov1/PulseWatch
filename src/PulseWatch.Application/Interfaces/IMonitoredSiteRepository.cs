@@ -14,4 +14,6 @@ public interface IMonitoredSiteRepository
     Task<Result<MonitoredSite>> UpdateAsync(MonitoredSite monitoredSite, CancellationToken cancellationToken);
 
     Task<Result> DeleteAsync(int id, CancellationToken cancellationToken);
+
+    Task<IEnumerable<MonitoredSite>> GetByName(string name, CancellationToken cancellationToken);
 }

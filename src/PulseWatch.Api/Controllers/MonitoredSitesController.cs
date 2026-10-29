@@ -31,6 +31,18 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
         return TypedResults.Ok(getSiteResult.Value);
     }
 
+    [HttpPost("by-name")]
+    public async Task<Results<Ok<IEnumerable<MonitoredSite>>, NotFound<string>>> GetMonitoredSiteByName(
+        [FromBody, Required, StringLength(255)] string name
+    )
+    {
+        var sites = await siteService.GetMonitoredSitesByName(name, CancellationToken.None);
+
+        if (!sites.Any()) return TypedResults.NotFound("The sites with this name doesn't exist.");
+
+        return TypedResults.Ok(sites);
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateMonitoredSite(
         [FromBody] CreateMonitoredSiteRequest request)

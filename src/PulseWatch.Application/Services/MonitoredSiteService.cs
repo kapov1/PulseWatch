@@ -32,4 +32,9 @@ public class MonitoredSiteService(IMonitoredSiteRepository siteRepository)
     {
         return await siteRepository.DeleteAsync(id, cancellationToken);
     }
+
+    public async Task<IEnumerable<MonitoredSite>> GetMonitoredSitesByName(string name, CancellationToken cancellationToken)
+    {
+        return await siteRepository.GetByName(name, cancellationToken);
+    }
 }

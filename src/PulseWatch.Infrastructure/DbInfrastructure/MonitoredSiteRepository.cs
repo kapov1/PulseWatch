@@ -51,6 +51,13 @@ public class MonitoredSiteRepository(AppDbContext dbContext) : IMonitoredSiteRep
         return Result<MonitoredSite>.Success(site);
     }
 
+    public async Task<IEnumerable<MonitoredSite>> GetByName(string name, CancellationToken cancellationToken)
+    {
+        return await monitoredSites
+            .Where(site => site.Name.Contains(name))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Result<MonitoredSite>> UpdateAsync(MonitoredSite newSiteData, CancellationToken cancellationToken)
     {
         var result = await GetByIdAsync(newSiteData.Id, cancellationToken);

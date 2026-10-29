@@ -42,27 +42,26 @@ public class HttpSiteChecker(HttpClient httpClient) : IHttpSiteChecker
         {
             stopwatch.Start();
             using var response = await httpClient.GetAsync(url, cancellationToken);
-            stopwatch.Stop();
 
             return SiteCheckResult.FromHttpResponse(url, response, stopwatch.Elapsed.TotalSeconds);
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException ex) when (
+            ex.InnerException is SocketException socketException &&
+            socketException.SocketErrorCode == SocketError.HostNotFound)
         {
-            if (ex.InnerException is SocketException socketException &&
-                socketException.SocketErrorCode == SocketError.HostNotFound)
-            {
-                return SiteCheckResult.FromHostNotFound(url, stopwatch.Elapsed.TotalSeconds);
-            }
+            return SiteCheckResult.FromHostNotFound(url, stopwatch.Elapsed.TotalSeconds);
         }
         catch (OperationCanceledException ex) when (ex.InnerException is TimeoutException)
         {
             return SiteCheckResult.FromTimeOut(url, stopwatch.Elapsed.TotalSeconds);
         }
+        catch (HttpRequestException ex)
+        {
+           return SiteCheckResult.FromHttpRequestFailure(url, stopwatch.Elapsed.TotalSeconds, ex.Message);
+        }
         finally
         {
             stopwatch.Stop();
         }
-
-        return SiteCheckResult.FromHttpRequestFailure(url, stopwatch.Elapsed.TotalSeconds);
     }
 }

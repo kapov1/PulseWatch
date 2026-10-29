@@ -8,7 +8,9 @@ namespace PulseWatch.Api.Controllers;
 
 [ApiController]
 [Route("api/monioring")]
-public class MonitoringController(SiteMonitoringService monitoringService) : ControllerBase
+public class MonitoringController(
+    SiteMonitoringService monitoringService,
+    MonitoredSiteService siteService) : ControllerBase
 {
     [HttpPost("check-url")]
     public async Task<ActionResult<ISiteCheckResult>> CheckUrl([FromBody, Required, Url] string url)
@@ -16,7 +18,7 @@ public class MonitoringController(SiteMonitoringService monitoringService) : Con
         return Ok(await monitoringService.CheckByUrlAsync(url, CancellationToken.None));
     }
 
-    [HttpGet("check-site/{id:int}")]
+    [HttpGet("check-by-id/{id:int}")]
     public async Task<Results<Ok<ISiteCheckResult>, NotFound<string>>> CheckUrlById(
         [Range(1, int.MaxValue)] int id)
     {
@@ -34,5 +36,18 @@ public class MonitoringController(SiteMonitoringService monitoringService) : Con
             = await monitoringService.CheckAllAsync(CancellationToken.None);
 
         return Ok(sitesCheckResults);
+    }
+
+    [HttpPost("check-by-name")]
+    public async Task<Results<Ok<IEnumerable<ISiteCheckResult>>, NotFound<string>>> CheckByName(
+        [FromBody, Required, StringLength(255)] string name)
+    {
+        var sites = await siteService.GetMonitoredSitesByName
+            (name, CancellationToken.None);
+
+        if (!sites.Any()) return TypedResults.NotFound("The site with this name doesn't exist.");
+
+        return TypedResults.Ok(await monitoringService.CheckManyAsync
+            (sites, CancellationToken.None));
     }
 }

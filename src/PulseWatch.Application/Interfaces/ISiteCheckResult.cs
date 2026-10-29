@@ -5,7 +5,7 @@ public interface ISiteCheckResult
     bool? IsReachable { get; }
     bool? IsAvailable { get; }
     int? StatusCode { get; }
-    double ResponseTimeMs { get; }
+    double ResponseTime { get; }
     DateTimeOffset CheckedAt { get; }
     string? FailureReason { get; }
 }
