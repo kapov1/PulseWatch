@@ -13,18 +13,25 @@ public class MonitoringController(
     MonitoredSiteService siteService) : ControllerBase
 {
     [HttpPost("check-url")]
-    public async Task<ActionResult<ISiteCheckResult>> CheckUrl([FromBody, Required, Url] string url)
+    public async Task<ActionResult<ISiteCheckResult>> CheckUrl(
+        [FromBody, Required, Url] string url)
     {
-        return Ok(await monitoringService.CheckByUrlAsync(url, CancellationToken.None));
+        return Ok(
+            await monitoringService.CheckByUrlAsync(url, CancellationToken.None));
     }
 
     [HttpGet("check-by-id/{id:int}")]
     public async Task<Results<Ok<ISiteCheckResult>, NotFound<string>>> CheckUrlById(
         [Range(1, int.MaxValue)] int id)
     {
-        var checkResult = await monitoringService.CheckByIdAsync(id, CancellationToken.None);
+        var checkResult = await monitoringService.CheckByIdAsync(
+            id,
+            CancellationToken.None);
 
-        if (checkResult.IsFailure) return TypedResults.NotFound(checkResult.ErrorMessage);
+        if (checkResult.IsFailure)
+        {
+            return TypedResults.NotFound(checkResult.ErrorMessage);
+        }
 
         return TypedResults.Ok(checkResult.Value);
     }
@@ -32,7 +39,7 @@ public class MonitoringController(
     [HttpGet("check-all")]
     public async Task<ActionResult<IEnumerable<ISiteCheckResult>>> CheckAll()
     {
-        IEnumerable<ISiteCheckResult> sitesCheckResults 
+        IEnumerable<ISiteCheckResult> sitesCheckResults
             = await monitoringService.CheckAllAsync(CancellationToken.None);
 
         return Ok(sitesCheckResults);
@@ -45,9 +52,12 @@ public class MonitoringController(
         var sites = await siteService.GetMonitoredSitesByName
             (name, CancellationToken.None);
 
-        if (!sites.Any()) return TypedResults.NotFound("The site with this name doesn't exist.");
+        if (!sites.Any())
+        {
+            return TypedResults.NotFound("The site with this name doesn't exist.");
+        }
 
-        return TypedResults.Ok(await monitoringService.CheckManyAsync
-            (sites, CancellationToken.None));
+        return TypedResults.Ok(
+            await monitoringService.CheckManyAsync(sites, CancellationToken.None));
     }
 }

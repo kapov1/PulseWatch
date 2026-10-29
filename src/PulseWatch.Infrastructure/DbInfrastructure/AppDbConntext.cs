@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PulseWatch.Domain;
+using PulseWatch.Domain.Models;
 
 namespace PulseWatch.Infrastructure.DbInfrastructure;
 

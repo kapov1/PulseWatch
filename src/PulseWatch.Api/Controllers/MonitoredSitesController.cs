@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PulseWatch.Application.Models;
 using PulseWatch.Application.Services;
-using PulseWatch.Domain;
+using PulseWatch.Domain.Models;
 
 namespace PulseWatch.Api.Controllers;
 

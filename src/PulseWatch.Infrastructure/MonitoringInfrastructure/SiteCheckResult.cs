@@ -4,6 +4,7 @@ namespace PulseWatch.Infrastructure.MonitoringInfrastructure;
 
 public class SiteCheckResult : ISiteCheckResult
 {
+    #region Properties
     public string Url { get; }
 
     public bool? IsReachable { get; }
@@ -17,6 +18,7 @@ public class SiteCheckResult : ISiteCheckResult
     public DateTimeOffset CheckedAt { get; }
 
     public string? FailureReason { get; }
+    #endregion
 
     private SiteCheckResult(string url, HttpResponseMessage httpResponse, double responseTime)
     {
@@ -40,15 +42,22 @@ public class SiteCheckResult : ISiteCheckResult
         FailureReason = failureReason;
     }
 
-    public static SiteCheckResult FromHttpResponse(string url, HttpResponseMessage httpResponse, double responseTime) =>
-        new(url, httpResponse, responseTime);
+    public static SiteCheckResult FromHttpResponse(
+        string url,
+        HttpResponseMessage httpResponse,
+        double responseTime) => new(url, httpResponse, responseTime);
 
-    public static SiteCheckResult FromHostNotFound(string url, double responseTime) =>
-        new(url, responseTime, "HostNotFound");
+    public static SiteCheckResult FromHostNotFound(
+        string url,
+        double responseTime) => new(url, responseTime, "HostNotFound");
 
-    public static SiteCheckResult FromHttpRequestFailure(string url, double responseTime, string errorMessage) =>
-        new(url, responseTime, errorMessage);
 
-    public static SiteCheckResult FromTimeOut(string url, double responseTimeMs) =>
-        new(url, responseTimeMs, "TimeOut");
+    public static SiteCheckResult FromHttpRequestFailure(
+        string url,
+        double responseTime,
+        string errorMessage) => new(url, responseTime, errorMessage);
+
+    public static SiteCheckResult FromTimeOut(
+        string url,
+        double responseTimeMs) => new(url, responseTimeMs, "TimeOut");
 }

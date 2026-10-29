@@ -6,7 +6,8 @@ public class Result<T> where T : notnull
 
     public T Value => IsSuccess
         ? _value!
-        : throw new InvalidOperationException("Cannot access Value of a failed result.");
+        : throw new InvalidOperationException(
+            "Cannot access Value of a failed result.");
 
     public bool IsSuccess { get; } = true;
     public bool IsFailure => !IsSuccess;
@@ -16,7 +17,7 @@ public class Result<T> where T : notnull
     private Result(T value)
     {
         ArgumentNullException.ThrowIfNull(value);
-        
+
         _value = value;
         IsSuccess = true;
     }

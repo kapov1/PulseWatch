@@ -1,4 +1,4 @@
-﻿namespace PulseWatch.Domain;
+﻿namespace PulseWatch.Domain.Models;
 
 public class MonitoredSite(string name, string url)
 {
