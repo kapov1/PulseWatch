@@ -4,12 +4,19 @@ using PulseWatch.Infrastructure.MonitoringInfrastructure;
 using Microsoft.Extensions.Options;
 using PulseWatch.Application;
 using PulseWatch.Infrastructure.DbInfrastructure;
+using Microsoft.EntityFrameworkCore;
+using PulseWatch.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+string connection = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
 
 #region DI contaiiner
     builder.Services.AddSwaggerGen();
     builder.Services.AddEndpointsApiExplorer();
+
+    builder.Services.AddProblemDetails();
 
     builder.Services.AddControllers();
 
@@ -24,10 +31,20 @@ var builder = WebApplication.CreateBuilder(args);
             httpClient.Timeout = TimeSpan.FromSeconds(monitoringOptions.RequestTimeoutSeconds);
         });
 
+    builder.Services.AddDbContext<AppDbContext>(options =>
+    {
+        options.UseNpgsql(connection);
+    });    
+
     builder.Services.AddScoped<IMonitoredSiteRepository, MonitoredSiteRepository>();     
+    builder.Services.AddScoped<MonitoredSiteService>();
+    builder.Services.AddScoped<SiteMonitoringService>();
 #endregion
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 app.UseSwagger();
 app.UseSwaggerUI();
