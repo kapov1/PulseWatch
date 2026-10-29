@@ -6,9 +6,9 @@ public class SiteCheckResult : ISiteCheckResult
 {
     public string Url { get; }
 
-    public bool IsReachable { get; }
+    public bool? IsReachable { get; }
 
-    public bool IsAvailable { get; }
+    public bool? IsAvailable { get; }
 
     public int? StatusCode { get; }
 
@@ -26,14 +26,14 @@ public class SiteCheckResult : ISiteCheckResult
         StatusCode = (int)httpResponse.StatusCode;
         ResponseTimeMs = responseTimeMs;
         CheckedAt = DateTimeOffset.UtcNow;
-        FailureReason = IsAvailable ? null : httpResponse.ReasonPhrase;
+        FailureReason = (bool)IsAvailable ? null : httpResponse.ReasonPhrase;
     }
 
     private SiteCheckResult(string url, double responseTimeMs, string failureReason)
     {
         Url = url;
-        IsReachable = false;
-        IsAvailable = false;
+        IsReachable = failureReason == "TimeOut" ? null : false;
+        IsAvailable = failureReason == "TimeOut" ? null : false;
         StatusCode = null;
         ResponseTimeMs = responseTimeMs;
         CheckedAt = DateTimeOffset.UtcNow;
@@ -50,5 +50,5 @@ public class SiteCheckResult : ISiteCheckResult
         new(url, responseTimeMs, "HttpRequestFailed");
 
     public static SiteCheckResult FromTimeOut(string url, double responseTimeMs) => 
-        new(url, responseTimeMs, "TimedOut");
+        new(url, responseTimeMs, "TimeOut");
 }    

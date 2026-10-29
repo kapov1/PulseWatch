@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 string connection = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
 
-#region DI contaiiner
+#region DI container
     builder.Services.AddSwaggerGen();
     builder.Services.AddEndpointsApiExplorer();
 
@@ -21,7 +21,7 @@ string connection = builder.Configuration.GetConnectionString("DefaultConnection
     builder.Services.AddControllers();
 
     builder.Services.Configure<MonitoringOptions>(
-        builder.Configuration.GetSection("Monitorig")
+        builder.Configuration.GetSection("Monitoring")
     );
 
     builder.Services.AddHttpClient<IHttpSiteChecker, HttpSiteChecker>(
@@ -29,6 +29,11 @@ string connection = builder.Configuration.GetConnectionString("DefaultConnection
         {
             var monitoringOptions = serviceProvicer.GetRequiredService<IOptions<MonitoringOptions>>().Value;
             httpClient.Timeout = TimeSpan.FromSeconds(monitoringOptions.RequestTimeoutSeconds);
+
+            System.Console.WriteLine();
+            System.Console.WriteLine("http timeout: " + httpClient.Timeout);
+            System.Console.WriteLine("optoins timeout: " + monitoringOptions.RequestTimeoutSeconds);
+            System.Console.WriteLine();
         });
 
     builder.Services.AddDbContext<AppDbContext>(options =>
