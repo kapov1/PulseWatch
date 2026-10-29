@@ -8,7 +8,9 @@ public class HttpSiteChecker(HttpClient httpClient) : IHttpSiteChecker
 {
     private static readonly SemaphoreSlim semaphore = new(10, 10);
 
-    private async Task<ISiteCheckResult> CheckWithSemaphoreAsync(string url, CancellationToken cancellationToken)
+    private async Task<ISiteCheckResult> CheckWithSemaphoreAsync(
+        string url,
+        CancellationToken cancellationToken)
     {
         await semaphore.WaitAsync(cancellationToken);
 
@@ -22,7 +24,9 @@ public class HttpSiteChecker(HttpClient httpClient) : IHttpSiteChecker
         }
     }
 
-    public async Task<IEnumerable<ISiteCheckResult>> CheckManyAsync(IEnumerable<string> urls, CancellationToken cancellationToken)
+    public async Task<IEnumerable<ISiteCheckResult>> CheckManyAsync(
+        IEnumerable<string> urls,
+        CancellationToken cancellationToken)
     {
         List<Task<ISiteCheckResult>> checkTasks = [];
 
@@ -34,7 +38,9 @@ public class HttpSiteChecker(HttpClient httpClient) : IHttpSiteChecker
         return await Task.WhenAll(checkTasks);
     }
 
-    public async Task<ISiteCheckResult> CheckSiteAsync(string url, CancellationToken cancellationToken)
+    public async Task<ISiteCheckResult> CheckSiteAsync(
+        string url,
+        CancellationToken cancellationToken)
     {
         Stopwatch stopwatch = new();
 
@@ -42,27 +48,32 @@ public class HttpSiteChecker(HttpClient httpClient) : IHttpSiteChecker
         {
             stopwatch.Start();
             using var response = await httpClient.GetAsync(url, cancellationToken);
-            stopwatch.Stop();
 
-            return SiteCheckResult.FromHttpResponse(url, response, stopwatch.Elapsed.TotalSeconds);
+            return SiteCheckResult.FromHttpResponse(
+                url,
+                response,
+                stopwatch.Elapsed.TotalSeconds);
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException ex) when (
+            ex.InnerException is SocketException socketException &&
+            socketException.SocketErrorCode == SocketError.HostNotFound)
         {
-            if (ex.InnerException is SocketException socketException &&
-                socketException.SocketErrorCode == SocketError.HostNotFound)
-            {
-                return SiteCheckResult.FromHostNotFound(url, stopwatch.Elapsed.TotalSeconds);
-            }
+            return SiteCheckResult.FromHostNotFound(url, stopwatch.Elapsed.TotalSeconds);
         }
         catch (OperationCanceledException ex) when (ex.InnerException is TimeoutException)
         {
             return SiteCheckResult.FromTimeOut(url, stopwatch.Elapsed.TotalSeconds);
         }
+        catch (HttpRequestException ex)
+        {
+            return SiteCheckResult.FromHttpRequestFailure(
+                url,
+                stopwatch.Elapsed.TotalSeconds,
+                ex.Message);
+        }
         finally
         {
             stopwatch.Stop();
         }
-
-        return SiteCheckResult.FromHttpRequestFailure(url, stopwatch.Elapsed.TotalSeconds);
     }
 }

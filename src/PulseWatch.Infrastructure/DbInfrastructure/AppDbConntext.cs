@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using PulseWatch.Domain;
+using PulseWatch.Domain.Models;
 
 namespace PulseWatch.Infrastructure.DbInfrastructure;
 
@@ -16,7 +16,7 @@ public sealed class AppDbContext : DbContext
     {
         modelBuilder.Entity<MonitoredSite>(entity =>
         {
-            entity.ToTable("pulsewatch", "public");
+            entity.ToTable("monitored_sites", "public");
 
             entity.Property(ms => ms.Id).HasColumnName("id");
             entity.Property(ms => ms.Name).HasColumnName("name");

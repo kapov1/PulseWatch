@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PulseWatch.Application;
 using PulseWatch.Common.Models;
-using PulseWatch.Domain;
+using PulseWatch.Domain.Models;
 
 namespace PulseWatch.Infrastructure.DbInfrastructure;
 
@@ -9,7 +9,9 @@ public class MonitoredSiteRepository(AppDbContext dbContext) : IMonitoredSiteRep
 {
     private readonly IQueryable<MonitoredSite> monitoredSites = dbContext.MonitoredSites;
 
-    public async Task<Result<MonitoredSite>> CreateAsync(MonitoredSite monitoredSite, CancellationToken cancellationToken)
+    public async Task<Result<MonitoredSite>> CreateAsync(
+        MonitoredSite monitoredSite,
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -24,7 +26,9 @@ public class MonitoredSiteRepository(AppDbContext dbContext) : IMonitoredSiteRep
         }
     }
 
-    public async Task<Result> DeleteAsync(int id, CancellationToken cancellationToken)
+    public async Task<Result> DeleteAsync(
+        int id,
+        CancellationToken cancellationToken)
     {
         var site = await monitoredSites.FirstOrDefaultAsync(site => site.Id == id, cancellationToken);
 
@@ -37,12 +41,15 @@ public class MonitoredSiteRepository(AppDbContext dbContext) : IMonitoredSiteRep
         return Result.Success();
     }
 
-    public async Task<IEnumerable<MonitoredSite>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IEnumerable<MonitoredSite>> GetAllAsync(
+        CancellationToken cancellationToken)
     {
         return await monitoredSites.ToListAsync(cancellationToken);
     }
 
-    public async Task<Result<MonitoredSite>> GetByIdAsync(int id, CancellationToken cancellationToken)
+    public async Task<Result<MonitoredSite>> GetByIdAsync(
+        int id,
+        CancellationToken cancellationToken)
     {
         var site = await monitoredSites.FirstOrDefaultAsync(ms => ms.Id == id, cancellationToken);
 
@@ -51,7 +58,18 @@ public class MonitoredSiteRepository(AppDbContext dbContext) : IMonitoredSiteRep
         return Result<MonitoredSite>.Success(site);
     }
 
-    public async Task<Result<MonitoredSite>> UpdateAsync(MonitoredSite newSiteData, CancellationToken cancellationToken)
+    public async Task<IEnumerable<MonitoredSite>> GetByName(
+        string name,
+        CancellationToken cancellationToken)
+    {
+        return await monitoredSites
+            .Where(site => site.Name.Contains(name))
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<Result<MonitoredSite>> UpdateAsync(
+        MonitoredSite newSiteData,
+        CancellationToken cancellationToken)
     {
         var result = await GetByIdAsync(newSiteData.Id, cancellationToken);
 
