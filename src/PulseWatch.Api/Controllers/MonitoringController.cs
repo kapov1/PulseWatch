@@ -7,26 +7,28 @@ using PulseWatch.Application.Services;
 namespace PulseWatch.Api.Controllers;
 
 [ApiController]
-[Route("api/monioring")]
+[Route("api/monitoring")]
 public class MonitoringController(
     SiteMonitoringService monitoringService,
     MonitoredSiteService siteService) : ControllerBase
 {
     [HttpPost("check-url")]
     public async Task<ActionResult<ISiteCheckResult>> CheckUrl(
-        [FromBody, Required, Url] string url)
+        [FromBody, Required, Url] string url,
+        CancellationToken cancellationToken)
     {
         return Ok(
-            await monitoringService.CheckByUrlAsync(url, CancellationToken.None));
+            await monitoringService.CheckByUrlAsync(url, cancellationToken));
     }
 
     [HttpGet("check-by-id/{id:int}")]
     public async Task<Results<Ok<ISiteCheckResult>, NotFound<string>>> CheckUrlById(
-        [Range(1, int.MaxValue)] int id)
+        [Range(1, int.MaxValue)] int id,
+        CancellationToken cancellationToken)
     {
         var checkResult = await monitoringService.CheckByIdAsync(
             id,
-            CancellationToken.None);
+            cancellationToken);
 
         if (checkResult.IsFailure)
         {
@@ -37,27 +39,27 @@ public class MonitoringController(
     }
 
     [HttpGet("check-all")]
-    public async Task<ActionResult<IEnumerable<ISiteCheckResult>>> CheckAll()
+    public async Task<ActionResult<IEnumerable<ISiteCheckResult>>> CheckAll(
+        CancellationToken cancellationToken)
     {
         IEnumerable<ISiteCheckResult> sitesCheckResults
-            = await monitoringService.CheckAllAsync(CancellationToken.None);
+            = await monitoringService.CheckAllAsync(cancellationToken);
 
         return Ok(sitesCheckResults);
     }
 
     [HttpPost("check-by-name")]
     public async Task<Results<Ok<IEnumerable<ISiteCheckResult>>, NotFound<string>>> CheckByName(
-        [FromBody, Required, StringLength(255)] string name)
+        [FromBody, Required, StringLength(255)] string name,
+        CancellationToken cancellationToken)
     {
         var sites = await siteService.GetMonitoredSitesByName
-            (name, CancellationToken.None);
+            (name, cancellationToken);
 
-        if (!sites.Any())
-        {
-            return TypedResults.NotFound("The site with this name doesn't exist.");
-        }
+        var siteCheckResults = await monitoringService.CheckManyAsync(
+            sites, 
+            cancellationToken);
 
-        return TypedResults.Ok(
-            await monitoringService.CheckManyAsync(sites, CancellationToken.None));
+        return TypedResults.Ok(siteCheckResults);
     }
 }

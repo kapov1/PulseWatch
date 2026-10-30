@@ -14,36 +14,34 @@ string connection = builder.Configuration.GetConnectionString("DefaultConnection
         "Connection string 'DefaultConnection' was not found.");
 
 #region DI container
-builder.Services.AddSwaggerGen();
-builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+    builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddProblemDetails();
+    builder.Services.AddProblemDetails();
 
-builder.Services.AddControllers();
+    builder.Services.Configure<MonitoringOptions>(
+        builder.Configuration.GetSection("Monitoring"));
 
-builder.Services.Configure<MonitoringOptions>(
-    builder.Configuration.GetSection("Monitoring"));
+    builder.Services.AddHttpClient<IHttpSiteChecker, HttpSiteChecker>(
+        (serviceProvicer, httpClient) =>
+            {
+                var monitoringOptions = 
+                    serviceProvicer.GetRequiredService<IOptions<MonitoringOptions>>().Value;
 
-builder.Services.AddHttpClient<IHttpSiteChecker, HttpSiteChecker>(
-    (serviceProvicer, httpClient) =>
-        {
-            var monitoringOptions = serviceProvicer.GetRequiredService<IOptions<MonitoringOptions>>().Value;
-            httpClient.Timeout = TimeSpan.FromSeconds(monitoringOptions.RequestTimeoutSeconds);
+                httpClient.Timeout = 
+                    TimeSpan.FromSeconds(monitoringOptions.RequestTimeoutSeconds);
+            });
 
-            System.Console.WriteLine();
-            System.Console.WriteLine("http timeout: " + httpClient.Timeout);
-            System.Console.WriteLine("optoins timeout: " + monitoringOptions.RequestTimeoutSeconds);
-            System.Console.WriteLine();
-        });
+    builder.Services.AddDbContext<AppDbContext>(options =>
+    {
+        options.UseNpgsql(connection);
+    });
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseNpgsql(connection);
-});
+    builder.Services.AddScoped<IMonitoredSiteRepository, MonitoredSiteRepository>();
+    builder.Services.AddScoped<MonitoredSiteService>();
+    builder.Services.AddScoped<SiteMonitoringService>();
 
-builder.Services.AddScoped<IMonitoredSiteRepository, MonitoredSiteRepository>();
-builder.Services.AddScoped<MonitoredSiteService>();
-builder.Services.AddScoped<SiteMonitoringService>();
+    builder.Services.AddControllers();
 #endregion
 
 var app = builder.Build();

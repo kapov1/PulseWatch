@@ -16,7 +16,9 @@ public class HttpSiteChecker(HttpClient httpClient) : IHttpSiteChecker
 
         try
         {
-            return await CheckSiteAsync(url, cancellationToken);
+            return await CheckSiteAsync(
+                url, 
+                cancellationToken);
         }
         finally
         {
@@ -32,7 +34,9 @@ public class HttpSiteChecker(HttpClient httpClient) : IHttpSiteChecker
 
         foreach (var url in urls)
         {
-            checkTasks.Add(CheckWithSemaphoreAsync(url, cancellationToken));
+            checkTasks.Add(CheckWithSemaphoreAsync(
+                url, 
+                cancellationToken));
         }
 
         return await Task.WhenAll(checkTasks);
@@ -47,7 +51,9 @@ public class HttpSiteChecker(HttpClient httpClient) : IHttpSiteChecker
         try
         {
             stopwatch.Start();
-            using var response = await httpClient.GetAsync(url, cancellationToken);
+
+            using var response = 
+                await httpClient.GetAsync(url, cancellationToken);
 
             return SiteCheckResult.FromHttpResponse(
                 url,
@@ -58,11 +64,16 @@ public class HttpSiteChecker(HttpClient httpClient) : IHttpSiteChecker
             ex.InnerException is SocketException socketException &&
             socketException.SocketErrorCode == SocketError.HostNotFound)
         {
-            return SiteCheckResult.FromHostNotFound(url, stopwatch.Elapsed.TotalSeconds);
+            return SiteCheckResult.FromHostNotFound(
+                url, 
+                stopwatch.Elapsed.TotalSeconds);
         }
-        catch (OperationCanceledException ex) when (ex.InnerException is TimeoutException)
+        catch (OperationCanceledException ex) when (
+            ex.InnerException is TimeoutException)
         {
-            return SiteCheckResult.FromTimeOut(url, stopwatch.Elapsed.TotalSeconds);
+            return SiteCheckResult.FromTimeOut(
+                url, 
+                stopwatch.Elapsed.TotalSeconds);
         }
         catch (HttpRequestException ex)
         {

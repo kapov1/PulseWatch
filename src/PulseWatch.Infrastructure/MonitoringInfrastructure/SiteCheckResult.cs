@@ -20,7 +20,10 @@ public class SiteCheckResult : ISiteCheckResult
     public string? FailureReason { get; }
     #endregion
 
-    private SiteCheckResult(string url, HttpResponseMessage httpResponse, double responseTime)
+    private SiteCheckResult(
+        string url, 
+        HttpResponseMessage httpResponse, 
+        double responseTime)
     {
         Url = url;
         IsReachable = true;
@@ -31,7 +34,10 @@ public class SiteCheckResult : ISiteCheckResult
         FailureReason = (bool)IsAvailable ? null : httpResponse.ReasonPhrase;
     }
 
-    private SiteCheckResult(string url, double responseTime, string failureReason)
+    private SiteCheckResult(
+        string url, 
+        double responseTime, 
+        string failureReason)
     {
         Url = url;
         IsReachable = failureReason == "TimeOut" ? null : false;
@@ -59,5 +65,5 @@ public class SiteCheckResult : ISiteCheckResult
 
     public static SiteCheckResult FromTimeOut(
         string url,
-        double responseTimeMs) => new(url, responseTimeMs, "TimeOut");
+        double responseTime) => new(url, responseTime, "TimeOut");
 }

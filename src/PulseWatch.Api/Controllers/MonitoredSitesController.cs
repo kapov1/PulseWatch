@@ -12,19 +12,23 @@ namespace PulseWatch.Api.Controllers;
 public class MonitoredSitesController(MonitoredSiteService siteService) : ControllerBase
 {
     [HttpGet]
-    public async Task<Results<Ok<IEnumerable<MonitoredSite>>, NotFound>> GetAllMonitoredSites()
+    public async Task<ActionResult<IEnumerable<MonitoredSite>>> GetAllMonitoredSites(
+        CancellationToken cancellationToken)
     {
-        var sites = await siteService.GetAllMonitoredSitesAsync(CancellationToken.None);
+        IEnumerable<MonitoredSite> sites =
+            await siteService.GetAllMonitoredSitesAsync(cancellationToken);
 
-        if (!sites.Any()) return TypedResults.NotFound();
-
-        return TypedResults.Ok(sites);
+        return Ok(sites);
     }
 
     [HttpGet("{id:int}")]
-    public async Task<Results<Ok<MonitoredSite>, NotFound<string>>> GetMonitoredSiteById(int id)
+    public async Task<Results<Ok<MonitoredSite>, NotFound<string>>> GetMonitoredSiteById(
+        [Range(1, int.MaxValue)] int id,
+        CancellationToken cancellationToken)
     {
-        var getSiteResult = await siteService.GetMonitoredSiteByIdAsync(id, CancellationToken.None);
+        var getSiteResult = await siteService.GetMonitoredSiteByIdAsync(
+            id,
+            cancellationToken);
 
         if (getSiteResult.IsFailure) return TypedResults.NotFound(getSiteResult.ErrorMessage);
 
@@ -33,23 +37,22 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
 
     [HttpPost("by-name")]
     public async Task<Results<Ok<IEnumerable<MonitoredSite>>, NotFound<string>>> GetMonitoredSiteByName(
-        [FromBody, Required, StringLength(255)] string name
-    )
+        [FromBody, Required, StringLength(255)] string name,
+        CancellationToken cancellationToken)
     {
-        var sites = await siteService.GetMonitoredSitesByName(name, CancellationToken.None);
-
-        if (!sites.Any()) return TypedResults.NotFound("The sites with this name doesn't exist.");
+        var sites = await siteService.GetMonitoredSitesByName(name, cancellationToken);
 
         return TypedResults.Ok(sites);
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateMonitoredSite(
-        [FromBody] CreateMonitoredSiteRequest request)
+        [FromBody] CreateMonitoredSiteRequest request,
+        CancellationToken cancellationToken)
     {
         var createResult = await siteService.CreateMonitoredSiteAsync(
             request,
-            CancellationToken.None);
+            cancellationToken);
 
         if (createResult.IsFailure)
         {
@@ -69,26 +72,36 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
     [HttpPut("{id:int}")]
     public async Task<Results<Ok<MonitoredSite>, NotFound<string>>> UpdateMonitoredSite(
         [FromBody] CreateMonitoredSiteRequest request,
-        int id)
+        [Range(1, int.MaxValue)] int id,
+        CancellationToken cancellationToken)
     {
         MonitoredSite newSiteData = new(request.Name, request.Url) { Id = id };
 
         var updateResult = await siteService.UpdateMonitoredSiteAsync(
             newSiteData,
-             CancellationToken.None);
+            cancellationToken);
 
-        if (updateResult.IsFailure) return TypedResults.NotFound(updateResult.ErrorMessage);
+        if (updateResult.IsFailure)
+        {
+            return TypedResults.NotFound(updateResult.ErrorMessage);
+        }
 
         return TypedResults.Ok(updateResult.Value);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<Results<NoContent, NotFound<string>>> DeleteMonitoredSite(
-        [Range(1, int.MaxValue)] int id)
+        [Range(1, int.MaxValue)] int id,
+        CancellationToken cancellationToken)
     {
-        var deleteResult = await siteService.DeleteMonitoredSiteAsync(id, CancellationToken.None);
+        var deleteResult = await siteService.DeleteMonitoredSiteAsync(
+            id,
+            cancellationToken);
 
-        if (deleteResult.IsFailure) return TypedResults.NotFound(deleteResult.ErrorMessage);
+        if (deleteResult.IsFailure)
+        {
+            return TypedResults.NotFound(deleteResult.ErrorMessage);
+        }
 
         return TypedResults.NoContent();
     }
