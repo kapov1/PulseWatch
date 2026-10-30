@@ -76,10 +76,7 @@ public class HttpSiteChecker(
                     checkResult.ResponseTime);
             #endregion
 
-            return SiteCheckResult.FromHttpResponse(
-                url,
-                response,
-                stopwatch.Elapsed.TotalSeconds);
+            return checkResult;
         }
         
         catch (HttpRequestException ex) when (

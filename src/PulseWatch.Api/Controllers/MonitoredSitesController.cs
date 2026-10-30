@@ -38,7 +38,7 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
 
         [ProducesResponseType(typeof(MonitoredSiteResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
 
         [Produces("application/json")]
     #endregion
@@ -63,10 +63,10 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
 
     #region OpenApi documentation
         [EndpointSummary("Get monitored sites by name.")]
-        [EndpointDescription("Retrieves all monitored sites using name of part of monitored site's name")]
+        [EndpointDescription("Returns all monitored sites whose names contain the specified search term.")]
 
         [ProducesResponseType(typeof(IEnumerable<MonitoredSiteResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
 
         [Produces("application/json")]
     #endregion
@@ -88,8 +88,9 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
         [EndpointSummary("Add a site to monitoring")]
         [EndpointDescription("Adds a site to monitoring. A site name and URL are required.")]
 
-        [ProducesResponseType(typeof(MonitoredSiteResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(MonitoredSiteResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
 
         [Consumes("application/json")]
         [Produces("application/json")]
@@ -122,7 +123,7 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
         [EndpointDescription("Updates a monitored site's details while preserving its unique ID.")]
 
         [ProducesResponseType(typeof(MonitoredSiteResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
 
         [Consumes("application/json")]
@@ -156,6 +157,7 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
         [EndpointDescription("Deletes a monitored site by its unique ID.")]
 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
 
         [Produces("application/json")]

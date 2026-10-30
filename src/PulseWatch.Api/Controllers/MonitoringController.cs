@@ -17,7 +17,7 @@ public class MonitoringController(
         [EndpointDescription("Checks the availability of a page and its server using the specified URL.")]
 
         [ProducesResponseType(typeof(ISiteCheckResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
 
         [Consumes("application/json")]
         [Produces("application/json")]
@@ -37,6 +37,7 @@ public class MonitoringController(
 
         [ProducesResponseType(typeof(ISiteCheckResult), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
 
         [Produces("application/json")]
     #endregion
@@ -62,7 +63,7 @@ public class MonitoringController(
 
         [ProducesResponseType(typeof(IEnumerable<ISiteCheckResult>), StatusCodes.Status200OK)]
 
-        [Consumes("application/json")]
+        [Produces("application/json")]
     #endregion
     [HttpGet("check-all")]
     public async Task<ActionResult<IEnumerable<ISiteCheckResult>>> CheckAll(
@@ -79,7 +80,7 @@ public class MonitoringController(
         [EndpointDescription("Check all monitored sites using name of part of monitored site's name")]
 
         [ProducesResponseType(typeof(IEnumerable<ISiteCheckResult>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
 
         [Produces("application/json")]
     #endregion
