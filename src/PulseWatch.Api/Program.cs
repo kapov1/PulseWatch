@@ -19,6 +19,8 @@ string connection = builder.Configuration.GetConnectionString("DefaultConnection
 
     builder.Services.AddProblemDetails();
 
+    builder.Services.AddHttpLogging();
+
     builder.Services.Configure<MonitoringOptions>(
         builder.Configuration.GetSection("Monitoring"));
 
@@ -48,6 +50,8 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+
+app.UseHttpLogging();
 
 app.UseSwagger();
 app.UseSwaggerUI();

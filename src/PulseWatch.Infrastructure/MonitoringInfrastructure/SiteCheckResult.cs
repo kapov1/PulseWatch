@@ -57,7 +57,6 @@ public class SiteCheckResult : ISiteCheckResult
         string url,
         double responseTime) => new(url, responseTime, "HostNotFound");
 
-
     public static SiteCheckResult FromHttpRequestFailure(
         string url,
         double responseTime,
