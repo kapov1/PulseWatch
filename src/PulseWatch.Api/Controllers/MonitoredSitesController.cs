@@ -12,37 +12,49 @@ namespace PulseWatch.Api.Controllers;
 public class MonitoredSitesController(MonitoredSiteService siteService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<MonitoredSite>>> GetAllMonitoredSites(
+    public async Task<ActionResult<IEnumerable<MonitoredSiteResponse>>> GetAllMonitoredSites(
         CancellationToken cancellationToken)
     {
-        IEnumerable<MonitoredSite> sites =
+        var monitoredSites =
             await siteService.GetAllMonitoredSitesAsync(cancellationToken);
 
-        return Ok(sites);
+        var responses =
+            monitoredSites.Select(site => new MonitoredSiteResponse(site));
+
+        return Ok(responses);
     }
 
     [HttpGet("{id:int}")]
-    public async Task<Results<Ok<MonitoredSite>, NotFound<string>>> GetMonitoredSiteById(
+    public async Task<Results<Ok<MonitoredSiteResponse>, NotFound<string>>> GetMonitoredSiteById(
         [Range(1, int.MaxValue)] int id,
         CancellationToken cancellationToken)
     {
         var getSiteResult = await siteService.GetMonitoredSiteByIdAsync(
-            id,
-            cancellationToken);
+            id, cancellationToken);
 
-        if (getSiteResult.IsFailure) return TypedResults.NotFound(getSiteResult.ErrorMessage);
+        if (getSiteResult.IsFailure)
+        {
+            return TypedResults.NotFound(getSiteResult.ErrorMessage);
+        } 
 
-        return TypedResults.Ok(getSiteResult.Value);
+        var monitoredSite = getSiteResult.Value;
+        MonitoredSiteResponse response = new(monitoredSite);
+
+        return TypedResults.Ok(response);
     }
 
     [HttpPost("by-name")]
-    public async Task<Results<Ok<IEnumerable<MonitoredSite>>, NotFound<string>>> GetMonitoredSiteByName(
+    public async Task<ActionResult<IEnumerable<MonitoredSiteResponse>>> GetMonitoredSiteByName(
         [FromBody, Required, StringLength(255)] string name,
         CancellationToken cancellationToken)
     {
-        var sites = await siteService.GetMonitoredSitesByName(name, cancellationToken);
+        var monitoredSites = 
+            await siteService.GetMonitoredSitesByName(name, cancellationToken);
 
-        return TypedResults.Ok(sites);
+        var responses =
+            monitoredSites.Select(site => new MonitoredSiteResponse(site));
+
+        return Ok(responses);
     }
 
     [HttpPost]
@@ -70,7 +82,7 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
     }
 
     [HttpPut("{id:int}")]
-    public async Task<Results<Ok<MonitoredSite>, NotFound<string>>> UpdateMonitoredSite(
+    public async Task<Results<Ok<MonitoredSiteResponse>, NotFound<string>>> UpdateMonitoredSite(
         [FromBody] CreateMonitoredSiteRequest request,
         [Range(1, int.MaxValue)] int id,
         CancellationToken cancellationToken)
@@ -86,7 +98,10 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
             return TypedResults.NotFound(updateResult.ErrorMessage);
         }
 
-        return TypedResults.Ok(updateResult.Value);
+        var monitoredSite = updateResult.Value;
+        MonitoredSiteResponse response = new(monitoredSite);
+
+        return TypedResults.Ok(response);
     }
 
     [HttpDelete("{id:int}")]

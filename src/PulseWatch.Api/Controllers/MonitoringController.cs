@@ -49,17 +49,16 @@ public class MonitoringController(
     }
 
     [HttpPost("check-by-name")]
-    public async Task<Results<Ok<IEnumerable<ISiteCheckResult>>, NotFound<string>>> CheckByName(
+    public async Task<ActionResult<IEnumerable<ISiteCheckResult>>> CheckByName(
         [FromBody, Required, StringLength(255)] string name,
         CancellationToken cancellationToken)
     {
-        var sites = await siteService.GetMonitoredSitesByName
-            (name, cancellationToken);
+        var sites = await siteService.GetMonitoredSitesByName(
+            name, cancellationToken);
 
         var siteCheckResults = await monitoringService.CheckManyAsync(
-            sites, 
-            cancellationToken);
+            sites, cancellationToken);
 
-        return TypedResults.Ok(siteCheckResults);
+        return Ok(siteCheckResults);
     }
 }
