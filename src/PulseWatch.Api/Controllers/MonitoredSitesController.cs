@@ -11,6 +11,14 @@ namespace PulseWatch.Api.Controllers;
 [Route("api/sites")]
 public class MonitoredSitesController(MonitoredSiteService siteService) : ControllerBase
 {
+    #region OpenApi documentation
+        [EndpointSummary("Get all monitored sites")]
+        [EndpointDescription("Retrieves all monitored sites.")]
+
+        [ProducesResponseType(typeof(IEnumerable<MonitoredSiteResponse>), StatusCodes.Status200OK)]
+
+        [Produces("application/json")]
+    #endregion
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MonitoredSiteResponse>>> GetAllMonitoredSites(
         CancellationToken cancellationToken)
@@ -24,6 +32,16 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
         return Ok(responses);
     }
 
+    #region OpenApi documentation
+        [EndpointSummary("Get monitored site by id.")]
+        [EndpointDescription("Retrieves a monitored site using its unique identifier.")]
+
+        [ProducesResponseType(typeof(MonitoredSiteResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+
+        [Produces("application/json")]
+    #endregion
     [HttpGet("{id:int}")]
     public async Task<Results<Ok<MonitoredSiteResponse>, NotFound<string>>> GetMonitoredSiteById(
         [Range(1, int.MaxValue)] int id,
@@ -43,8 +61,17 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
         return TypedResults.Ok(response);
     }
 
+    #region OpenApi documentation
+        [EndpointSummary("Get monitored sites by name.")]
+        [EndpointDescription("Retrieves all monitored sites using name of part of monitored site's name")]
+
+        [ProducesResponseType(typeof(IEnumerable<MonitoredSiteResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+
+        [Produces("application/json")]
+    #endregion
     [HttpGet("search")]
-    public async Task<ActionResult<IEnumerable<MonitoredSiteResponse>>> GetMonitoredSiteByName(
+    public async Task<ActionResult<IEnumerable<MonitoredSiteResponse>>> GetMonitoredSitesByName(
         [FromQuery, Required, StringLength(255)] string name,
         CancellationToken cancellationToken)
     {
@@ -57,14 +84,23 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
         return Ok(responses);
     }
 
+    #region OpenApi documentation
+        [EndpointSummary("Add a site to monitoring")]
+        [EndpointDescription("Adds a site to monitoring. A site name and URL are required.")]
+
+        [ProducesResponseType(typeof(MonitoredSiteResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+
+        [Consumes("application/json")]
+        [Produces("application/json")]
+    #endregion
     [HttpPost]
     public async Task<IActionResult> CreateMonitoredSite(
         [FromBody] CreateMonitoredSiteRequest request,
         CancellationToken cancellationToken)
     {
         var createResult = await siteService.CreateMonitoredSiteAsync(
-            request,
-            cancellationToken);
+            request, cancellationToken);
 
         if (createResult.IsFailure)
         {
@@ -81,6 +117,17 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
             response);
     }
 
+    #region OpenApi documentation
+        [EndpointSummary("Update monitoring site data.")]
+        [EndpointDescription("Updates a monitored site's details while preserving its unique ID.")]
+
+        [ProducesResponseType(typeof(MonitoredSiteResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+
+        [Consumes("application/json")]
+        [Produces("application/json")]
+    #endregion
     [HttpPut("{id:int}")]
     public async Task<Results<Ok<MonitoredSiteResponse>, NotFound<string>>> UpdateMonitoredSite(
         [FromBody] CreateMonitoredSiteRequest request,
@@ -104,6 +151,15 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
         return TypedResults.Ok(response);
     }
 
+    #region OpenApi documentation
+        [EndpointSummary("Deletes a monitored site.")]
+        [EndpointDescription("Deletes a monitored site by its unique ID.")]
+
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+
+        [Produces("application/json")]
+    #endregion
     [HttpDelete("{id:int}")]
     public async Task<Results<NoContent, NotFound<string>>> DeleteMonitoredSite(
         [Range(1, int.MaxValue)] int id,
