@@ -48,9 +48,9 @@ public class MonitoringController(
         return Ok(sitesCheckResults);
     }
 
-    [HttpPost("check-by-name")]
+    [HttpGet("check-by-name")]
     public async Task<ActionResult<IEnumerable<ISiteCheckResult>>> CheckByName(
-        [FromBody, Required, StringLength(255)] string name,
+        [FromQuery, Required, StringLength(255)] string name,
         CancellationToken cancellationToken)
     {
         var sites = await siteService.GetMonitoredSitesByName(

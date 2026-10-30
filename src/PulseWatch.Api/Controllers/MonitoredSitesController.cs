@@ -43,9 +43,9 @@ public class MonitoredSitesController(MonitoredSiteService siteService) : Contro
         return TypedResults.Ok(response);
     }
 
-    [HttpPost("by-name")]
+    [HttpGet("search")]
     public async Task<ActionResult<IEnumerable<MonitoredSiteResponse>>> GetMonitoredSiteByName(
-        [FromBody, Required, StringLength(255)] string name,
+        [FromQuery, Required, StringLength(255)] string name,
         CancellationToken cancellationToken)
     {
         var monitoredSites = 
