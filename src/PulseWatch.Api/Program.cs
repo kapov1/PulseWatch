@@ -44,6 +44,19 @@ string connection = builder.Configuration.GetConnectionString("DefaultConnection
     builder.Services.AddScoped<SiteMonitoringService>();
 
     builder.Services.AddControllers();
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("Frontend", policy =>
+        {
+            policy
+                .WithOrigins(
+                    "http://localhost:5500",
+                    "http://127.0.0.1:5500")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+    });
 #endregion
 
 var app = builder.Build();
@@ -52,6 +65,8 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 
 app.UseHttpLogging();
+
+app.UseCors("Frontend");
 
 app.UseSwagger();
 app.UseSwaggerUI();
